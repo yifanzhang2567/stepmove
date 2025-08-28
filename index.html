@@ -2,15 +2,15 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>一键同步</title>
+  <title>ZEPP 步数同步</title>
 </head>
 <body>
-  <h2>一键同步步数</h2>
+  <h2>ZEPP 步数同步（无需微信）</h2>
   <form id="f">
-    账号  <input name="u" required /><br />
-    密码  <input name="p" type="password" required /><br />
-    目标值<input name="t" required /><br />
-    <button type="submit">提交</button>
+    ZEPP 账号<input name="user" required /><br />
+    ZEPP 密码<input name="pwd" type="password" required /><br />
+    目标步数<input name="step" type="number" required /><br />
+    <button type="submit">立即同步</button>
   </form>
 
   <script>
@@ -19,7 +19,7 @@
       const fd = new FormData(e.target);
       const res = await fetch('/api/sync', {
         method: 'POST',
-        body:   new URLSearchParams(fd),
+        body: new URLSearchParams(fd),
       });
       alert(await res.text());
     });
