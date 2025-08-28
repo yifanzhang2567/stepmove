@@ -1,20 +1,26 @@
-// Vercel 无服务器函数，路径：/api/sync
-export default async function handler(req, res) {
-  // 允许跨域
-  res.setHeader('Access-Control-Allow-Origin', '*');
-
+// api/sync.js
+module.exports = async (req, res) => {
   if (req.method !== 'POST') {
-    return res.status(405).end('Method Not Allowed');
+    return res.status(405).send('Only POST');
   }
 
-  // 1) 把浏览器发过来的 body 原样转发给 cqzz.top
-  const upstream = await fetch('https://cqzz.top/bushu/index.html', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: req.body,
-  });
+  // 1. 先把请求体完整读出来
+  let body = '';
+  req.on('data', chunk => body += chunk);
+  req.on('end', async () => {
+    try {
+      // 2. 转发给目标站
+      const upstream = await fetch('https://cqzz.top/bushu/index.html', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body,
+      });
 
-  // 2) 把目标站的响应原样返还给前端
-  const text = await upstream.text();
-  res.status(upstream.status).send(text);
-}
+      // 3. 把上游响应原样返给前端
+      const text = await upstream.text();
+      res.status(upstream.status).send(text);
+    } catch (e) {
+      res.status(500).send('Upstream error: ' + e.message);
+    }
+  });
+};
